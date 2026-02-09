@@ -28,7 +28,7 @@ interface ReportSettings {
 const STORAGE_KEY = 'questio_pdf_settings';
 
 const Tooltip: React.FC<{ children: React.ReactNode; text: string }> = ({ children, text }) => (
-  <div className="relative group">
+  <div className="relative group w-full">
     {children}
     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-2xl border border-slate-800 translate-y-2 group-hover:translate-y-0">
       {text}
@@ -410,26 +410,26 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
                             <div
                               key={idx}
                               className={`p-4 rounded-xl border flex items-start gap-3 transition-all ${isThisCorrectIndex
-                                  ? 'bg-emerald-50/50 border-emerald-200/60'
-                                  : isThisUserSelection && !isCorrect
-                                    ? 'bg-rose-50/50 border-rose-200/60'
-                                    : 'bg-white border-slate-100 opacity-60 hover:opacity-100'
+                                ? 'bg-emerald-50/50 border-emerald-200/60'
+                                : isThisUserSelection && !isCorrect
+                                  ? 'bg-rose-50/50 border-rose-200/60'
+                                  : 'bg-white border-slate-100 opacity-60 hover:opacity-100'
                                 }`}
                             >
                               <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black border ${isThisCorrectIndex
-                                  ? 'bg-emerald-100 border-emerald-200 text-emerald-700'
-                                  : isThisUserSelection && !isCorrect
-                                    ? 'bg-rose-100 border-rose-200 text-rose-700'
-                                    : 'bg-slate-50 border-slate-200 text-slate-400'
+                                ? 'bg-emerald-100 border-emerald-200 text-emerald-700'
+                                : isThisUserSelection && !isCorrect
+                                  ? 'bg-rose-100 border-rose-200 text-rose-700'
+                                  : 'bg-slate-50 border-slate-200 text-slate-400'
                                 }`}>
                                 {letter}
                               </div>
                               <div className="flex-grow">
                                 <span className={`text-sm ${isThisCorrectIndex
-                                    ? 'font-bold text-emerald-900'
-                                    : isThisUserSelection && !isCorrect
-                                      ? 'font-bold text-rose-900'
-                                      : 'font-medium text-slate-600'
+                                  ? 'font-bold text-emerald-900'
+                                  : isThisUserSelection && !isCorrect
+                                    ? 'font-bold text-rose-900'
+                                    : 'font-medium text-slate-600'
                                   }`}>
                                   {option}
                                 </span>

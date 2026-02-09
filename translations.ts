@@ -50,7 +50,7 @@ export const translations = {
     saving: "Menyimpan...",
     settingsSaved: "Konfigurasi Tersimpan",
     reportInsights: "Parameter Laporan",
-    customSync: "Sinkronisasi otomatis parameter",
+    customSync: "Sinkronisasi parameter",
     all: "Semua Jawaban",
     successTitle: "Laporan Audit Selesai!",
     successDesc: "Dokumen evaluasi TKDN Anda telah siap dan sedang diunduh.",
