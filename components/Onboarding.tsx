@@ -27,8 +27,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
   return (
     <div className="max-w-md mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">{t.welcome}</h1>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex flex-col w-auto h-auto">
+            <h1 className="text-xl font-black uppercase text-slate-900">{t.welcome}</h1>
+            <small className="text-blue-600 uppercase font-black">{t.tagline}</small>
+          </div>
           <div className="relative">
             <button
               type="button"
@@ -94,13 +97,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
           </button>
         </form>
       </div>
-      <div className="mt-8 flex justify-center space-x-8 text-slate-400">
-        <div className="flex flex-col items-center">
-          <span className="text-xl font-bold text-slate-600">10</span>
+      <div className="mt-8 flex justify-center gap-4 text-slate-400">
+        <div className="flex flex-row justify-between items-center border rounded-xl w-40 bg-white border p-4">
+          <span className="text-xl font-bold text-slate-600 mr-2">10</span>
           <span className="text-[10px] uppercase font-bold tracking-widest">{t.questionsLabel}</span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-xl font-bold text-slate-600">3-5</span>
+        <div className="flex flex-row justify-between items-center border rounded-xl w-40 bg-white border p-4">
+          <span className="text-xl font-bold text-slate-600 mr-2">3-5</span>
           <span className="text-[10px] uppercase font-bold tracking-widest">{t.minutesLabel}</span>
         </div>
       </div>
