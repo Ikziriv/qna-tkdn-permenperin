@@ -99,7 +99,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
       </div>
       <div className="mt-8 flex justify-center gap-4 text-slate-400">
         <div className="flex flex-row justify-between items-center border rounded-xl w-40 bg-white border p-4">
-          <span className="text-xl font-bold text-slate-600 mr-2">10</span>
+          <span className="text-xl font-bold text-slate-600 mr-2">25</span>
           <span className="text-[10px] uppercase font-bold tracking-widest">{t.questionsLabel}</span>
         </div>
         {/* <div className="flex flex-row justify-between items-center border rounded-xl w-40 bg-white border p-4">

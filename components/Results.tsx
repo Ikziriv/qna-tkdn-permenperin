@@ -260,12 +260,12 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
               <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${settings.showChart ? 'left-6' : 'left-1'}`} />
             </div>
           </button>
-          <button onClick={() => toggleSetting('showDetailed')} aria-pressed={settings.showDetailed} className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${settings.showDetailed ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 bg-slate-50 text-slate-500'}`}>
+          {/* <button onClick={() => toggleSetting('showDetailed')} aria-pressed={settings.showDetailed} className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${settings.showDetailed ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 bg-slate-50 text-slate-500'}`}>
             <span className="text-sm font-bold">{t.detailedTitle}</span>
             <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.showDetailed ? 'bg-blue-600' : 'bg-slate-300'}`}>
               <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${settings.showDetailed ? 'left-6' : 'left-1'}`} />
             </div>
-          </button>
+          </button> */}
         </div>
       </section>
 
@@ -315,7 +315,7 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
           </section>
         )}
 
-        {settings.showDetailed && (
+        {/* {settings.showDetailed && (
           <section className="pt-8 border-t border-slate-200">
             <div className="flex flex-col space-y-6 mb-12">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -449,14 +449,14 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
               })}
             </div>
           </section>
-        )}
+        )} */}
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-16 no-print">
         {/* <Tooltip text={t.isoA4Desc}>
           <button
             onClick={() => setShowPreview(true)}
-            className="group flex items-center gap-3 px-6 py-4 w-full md:w-64 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95 border border-slate-700"
+            className="group flex items-center gap-3 px-6 py-4 w-full bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95 border border-slate-700"
           >
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -473,7 +473,7 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
         <Tooltip text={t.printReport}>
           <button
             onClick={() => window.print()}
-            className="group flex items-center gap-3 px-6 py-4 w-full md:w-64 bg-white text-slate-700 rounded-2xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
+            className="group flex items-center gap-3 px-6 py-4 w-full bg-white text-slate-700 rounded-2xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -487,7 +487,7 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
         <Tooltip text={shareStatus === 'copied' ? t.copied : t.shareResults}>
           <button
             onClick={handleShare}
-            className="group flex items-center gap-3 px-6 py-4 w-full md:w-64 bg-white text-slate-700 rounded-2xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
+            className="group flex items-center gap-3 px-6 py-4 w-full bg-white text-slate-700 rounded-2xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/50 hover:text-blue-700 transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
