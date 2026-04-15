@@ -453,7 +453,7 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-16 no-print">
-        <Tooltip text={t.isoA4Desc}>
+        {/* <Tooltip text={t.isoA4Desc}>
           <button
             onClick={() => setShowPreview(true)}
             className="group flex items-center gap-3 px-6 py-4 w-full md:w-64 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95 border border-slate-700"
@@ -468,7 +468,7 @@ const Results: React.FC<ResultsProps> = ({ profile, answers, questions, onRestar
           </button>
         </Tooltip>
 
-        <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
+        <div className="h-8 w-px bg-slate-200 hidden sm:block"></div> */}
 
         <Tooltip text={t.printReport}>
           <button
