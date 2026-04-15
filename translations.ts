@@ -54,7 +54,11 @@ export const translations = {
     all: "Semua Jawaban",
     successTitle: "Laporan Audit Selesai!",
     successDesc: "Dokumen evaluasi TKDN Anda telah siap dan sedang diunduh.",
-    done: "Selesai"
+    done: "Selesai",
+    resumeTitle: "Sesi Ditemukan",
+    resumeDesc: "Anda memiliki evaluasi yang belum selesai atau sudah dilakukan. Ingin melanjutkan atau mulai dari awal?",
+    resumeContinue: "Lanjutkan Sesi",
+    resumeRestart: "Mulai Baru"
   },
   en: {
     appName: "Ministry",

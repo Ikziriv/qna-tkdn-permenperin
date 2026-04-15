@@ -15,6 +15,21 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
   const [error, setError] = useState('');
   const [showInfo, setShowInfo] = useState(false);
 
+  // Load profile from localStorage on mount
+  React.useEffect(() => {
+    const savedProfile = localStorage.getItem('tkdn_profile');
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile));
+    }
+  }, []);
+
+  // Auto-save profile as the user types
+  React.useEffect(() => {
+    if (profile.name || profile.role) {
+      localStorage.setItem('tkdn_profile', JSON.stringify(profile));
+    }
+  }, [profile]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.name.trim() || !profile.role.trim()) {

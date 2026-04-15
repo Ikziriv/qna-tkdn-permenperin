@@ -19,27 +19,32 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish }) => {
   // State for shuffled questions to keep them stable during the quiz
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
 
-  // Initialize shuffled questions once when component mounts or questions prop changes
+  // Initialize state and handle checkpoints
   useEffect(() => {
-    const shuffleData = () => {
-      // 1. Shuffle the question array first
-      const shuffledQ = [...questions].sort(() => Math.random() - 0.5);
+    const savedCheckpoint = localStorage.getItem('tkdn_quiz_checkpoint');
+    if (savedCheckpoint) {
+      const { 
+        shuffledQuestions: savedShuffled, 
+        currentIndex: savedIndex, 
+        answers: savedAnswers 
+      } = JSON.parse(savedCheckpoint);
+      
+      setShuffledQuestions(savedShuffled);
+      setCurrentIndex(savedIndex);
+      setAnswers(savedAnswers);
+      return;
+    }
 
-      // 2. For each question, shuffle its options
+    const shuffleData = () => {
+      const shuffledQ = [...questions].sort(() => Math.random() - 0.5);
       const finalQuestions = shuffledQ.map(q => {
         const optionIndices = q.options.id.map((_, i) => i);
-        
-        // Fisher-Yates shuffle for options
         for (let i = optionIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [optionIndices[i], optionIndices[j]] = [optionIndices[j], optionIndices[i]];
         }
-
-        // Map original properties to new shuffled positions
         const newOptionsEn = optionIndices.map(i => q.options.en[i]);
         const newOptionsId = optionIndices.map(i => q.options.id[i]);
-        
-        // Find where the original correct answer ended up
         const newCorrectIndex = optionIndices.indexOf(q.correctAnswerIndex);
 
         return {
@@ -51,12 +56,23 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish }) => {
           correctAnswerIndex: newCorrectIndex
         };
       });
-
       setShuffledQuestions(finalQuestions);
     };
 
     shuffleData();
   }, [questions]);
+
+  // Save checkpoint whenever state changes
+  useEffect(() => {
+    if (shuffledQuestions.length > 0) {
+      const checkpoint = {
+        shuffledQuestions,
+        currentIndex,
+        answers
+      };
+      localStorage.setItem('tkdn_quiz_checkpoint', JSON.stringify(checkpoint));
+    }
+  }, [shuffledQuestions, currentIndex, answers]);
 
   // Handle loading state until initialization is complete
   if (shuffledQuestions.length === 0) {
