@@ -1,0 +1,465 @@
+[
+    {
+        "id": 1,
+        "question": "Apakah seluruh produk dalam negeri wajib digunakan oleh Pengguna Barang/Jasa?",
+        "options": [
+            "A. Mutlak wajib digunakan",
+            "B. Tidak seluruhnya wajib",
+            "C. Hanya jika terdapat produk dalam negeri dengan nilai TKDN 40%",
+            "D. Ya, Jika produk dalam negeri tersebut memiliki sertifikat TKDN"
+        ],
+        "answer": "B. Tidak seluruhnya wajib",
+        "sources": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            84
+        ]
+    },
+    {
+        "id": 2,
+        "question": "Berapa nilai minimum TKDN sebelum ditambahkan nilai BMP 10% agar suatu produk dapat dikatakan barang wajib pada pengadaan barang/jasa?",
+        "options": [
+            "A. 25%",
+            "B. 15%",
+            "C. 30%",
+            "D. 24%"
+        ],
+        "answer": "C. 30%",
+        "sources": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            85
+        ]
+    },
+    {
+        "id": 3,
+        "question": "Persyaratan yang harus dipenuhi apabila KBLI pada NIB skala risiko menengah tinggi??",
+        "options": [
+            "A. NIB",
+            "B. Sertifikat Standar Pernyataan Mandiri",
+            "C. Sertifikat Standar Telah Terverifikasi",
+            "D. Izin"
+        ],
+        "answer": "C. Sertifikat Standar Telah Terverifikasi",
+        "sources": [
+            15,
+            16,
+            17,
+            18,
+            86
+        ]
+    },
+    {
+        "id": 4,
+        "question": "Berdasarkan tabel di bawah ini, peserta tender manakah yang tidak boleh mengikuti tender? (Table showing Participant D has TKDN 10% and BMP 10%, Participant E is Import 0%)",
+        "options": [
+            "A. B dan E",
+            "B. D dan C",
+            "C. A dan B",
+            "D. E dan D"
+        ],
+        "answer": "D. E dan D",
+        "sources": [
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            87
+        ]
+    },
+    {
+        "id": 5,
+        "question": "Sesuai Peraturan Pemerintah Nomor 29 Tahun 2018 tentang Pemberdayaan Industri, berikut adalah syarat suatu produk dapat dikategorikan Produk Dalam Negeri, kecuali?",
+        "options": [
+            "A. Diproduksi oleh perusahaan yang berinvestasi di dalam negeri",
+            "B. Seluruh atau sebagian tenaga kerja adalah Warga Negara Indonesia",
+            "C. Proses produksinya di dalam negeri and tidak menggunakan komponen dari dalam negeri",
+            "D. Seluruh atau sebagian bahan baku berasal dari dalam negeri"
+        ],
+        "answer": "C. Proses produksinya di dalam negeri and tidak menggunakan komponen dari dalam negeri",
+        "sources": [
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            88
+        ]
+    },
+    {
+        "id": 6,
+        "question": "Apa kepanjangan dari TKDN?",
+        "options": [
+            "A. Tingkat Kandungan Dalam Negeri",
+            "B. Tingkat Komponen Dalam Negeri",
+            "C. Tingkat Kemampuan Dalam Negeri",
+            "D. Tingkat Keberpihakan Dalam Negeri"
+        ],
+        "answer": "B. Tingkat Komponen Dalam Negeri",
+        "sources": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            88
+        ]
+    },
+    {
+        "id": 7,
+        "question": "Kewajiban penggunaan produk dalam negeri tertuang dalam?",
+        "options": [
+            "A. Undang Undang No 3 Tahun 2014",
+            "B. Peraturan Pemerintah No 29 Tahun 2018",
+            "C. Peraturan Presiden No 16 Tahun 2018 j.o Peraturan Presiden No 46 Tahun 2025",
+            "D. Semua Benar"
+        ],
+        "answer": "D. Semua Benar",
+        "sources": [
+            36,
+            37,
+            38,
+            39,
+            40,
+            89
+        ]
+    },
+    {
+        "id": 8,
+        "question": "Di bawah ini yang tidak termasuk ke dalam penghitungan sesuai dengan Peraturan Menteri Perindustrian No 35 Tahun 2025 adalah?",
+        "options": [
+            "A. TKDN Jasa",
+            "B. TKDN Gabungan Barang",
+            "C. TKDN Gabungan Jasa",
+            "D. TKDN Gabungan Barang dan Jasa"
+        ],
+        "answer": "C. TKDN Gabungan Jasa",
+        "sources": [
+            41,
+            42,
+            43,
+            44,
+            45,
+            90
+        ]
+    },
+    {
+        "id": 9,
+        "question": "Lingkup penilaian Bobot Manfaat Perusahaan (BMP) dalam Peraturan Menteri Perindustrian No 35 Tahun 2025 yaitu?",
+        "options": [
+            "A. Seluruh/sebagian pekerjanya adalah WNI",
+            "B. Penambahan investasi baru",
+            "C. Berinvestasi Di Dalam Negeri",
+            "D. Semua Salah"
+        ],
+        "answer": "B. Penambahan investasi baru",
+        "sources": [
+            46,
+            47,
+            48,
+            49,
+            50,
+            91
+        ]
+    },
+    {
+        "id": 10,
+        "question": "Pengawasan terhadap pelaksanaan peningkatan penggunaan produk dalam negeri dilakukan oleh?",
+        "options": [
+            "A. Aparatur Pengawas Internal Pemerintah",
+            "B. Pejabat Pengawas Internal",
+            "C. Tim P3DN",
+            "D. Semua Benar"
+        ],
+        "answer": "D. Semua Benar",
+        "sources": [
+            51,
+            52,
+            53,
+            54,
+            55,
+            92
+        ]
+    },
+    {
+        "id": 11,
+        "question": "Disebut apakah pengklasifikasian aktivitas/kegiatan ekonomi Indonesia yang menghasilkan produk/output, baik berupa barang maupun jasa, berdasarkan lapangan usaha untuk memberikan keseragaman konsep, definisi, and klasifikasi lapangan usaha dalam perkembangan and pergeseran kegiatan ekonomi di Indonesia?",
+        "options": [
+            "A. KBBI",
+            "B. KBKI",
+            "C. KBLI",
+            "D. KBJI"
+        ],
+        "answer": "C. KBLI",
+        "sources": [
+            56,
+            57,
+            58,
+            59,
+            60,
+            93
+        ]
+    },
+    {
+        "id": 12,
+        "question": "Kapan diterbitkannya panduan klasifikasi baku penentuan jenis kegiatan usaha/bisnis yang menjadi acuan pada sistem OSS Berbasis Risiko saat ini?",
+        "options": [
+            "A. 2019",
+            "B. 2020",
+            "C. 2021",
+            "D. 2022"
+        ],
+        "answer": "B. 2020",
+        "sources": [
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            94
+        ]
+    },
+    {
+        "id": 13,
+        "question": "KBLI manakah yang dapat mengajukan sertifikasi TKDN?",
+        "options": [
+            "A. 01121- Pertanian Padi Hibrida",
+            "B. 23921- Industri Mesin Percetakan",
+            "C. 45402-Perdagangan Besar Sepeda Motor Bekas",
+            "D. 56210-Jasa Boga Untuk Suatu Event Tertentu (Event Catering)"
+        ],
+        "answer": "B. 23921- Industri Mesin Percetakan",
+        "sources": [
+            67,
+            68,
+            69,
+            70,
+            71,
+            95
+        ]
+    },
+    {
+        "id": 14,
+        "question": "Komponen utama yang tidak memiliki Sertifikat TKDN tetapi diproduksi di dalam negeri dengan bahan baku lokal dapat dinilai TKDN sebesar?",
+        "options": [
+            "A. 0%",
+            "B. 25%",
+            "C. 50%",
+            "D. 100%"
+        ],
+        "answer": "D. 100%",
+        "sources": [
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            96
+        ]
+    },
+    {
+        "id": 15,
+        "question": "Barang yang tidak dapat dihitung nilai TKDN-nya adalah barang yang?",
+        "options": [
+            "A. Diproduksi dengan mesin otomatis",
+            "B. Diproduksi oleh industri kecil",
+            "C. Seluruh komponennya berasal dari impor",
+            "D. Menggunakan tenaga kerja asing"
+        ],
+        "answer": "C. Seluruh komponennya berasal dari impor",
+        "sources": [
+            78,
+            79,
+            80,
+            81,
+            82,
+            97
+        ]
+    },
+    {
+        "id": 16,
+        "question": "Dalam hal pembuktian kepemilikan pabrik, perusahaan dapat melampirkan bukti sebagai berikut, kecuali :",
+        "options": [
+            "A. Tagihan PBB",
+            "B. Akta kepemilikan tanah",
+            "C. Surat perjanjian sewa Pabrik",
+            "D. Akta cerai"
+        ],
+        "answer": "D. Akta cerai",
+        "sources": [
+            98,
+            99,
+            100
+        ]
+    },
+    {
+        "id": 17,
+        "question": "Perusahaan dengan modal Rp 5 milyar tidak termasuk tanah and bangunan dapat dikategorikan sebagai perusahaan :",
+        "options": [
+            "A. Perseroan Terbatas",
+            "B. Commanditaire Vennoostchap (CV)",
+            "C. Skala Kecil",
+            "D. Perseorangan"
+        ],
+        "answer": "C. Skala Kecil",
+        "sources": [
+            101,
+            102,
+            103,
+            104,
+            105
+        ]
+    },
+    {
+        "id": 18,
+        "question": "Bobot Manfaat Perusahaan yang selanjutnya disingkat BMP, pada Permenperin 35 tahun 2025 diberikan berapa opsional dalam penghitungan?",
+        "options": [
+            "A. 5",
+            "B. 10",
+            "C. 15",
+            "D. 17"
+        ],
+        "answer": "B. 10",
+        "sources": [
+            106,
+            107,
+            108,
+            109
+        ]
+    },
+    {
+        "id": 19,
+        "question": "Biaya sewa and biaya listrik merupakan biaya tidak langsung pabrik (factory overhead) yang pada penghitungan diberikan bobot sebesar :",
+        "options": [
+            "A. 5%",
+            "B. 15%",
+            "C. 25%",
+            "D. 75%"
+        ],
+        "answer": "B. 15%",
+        "sources": [
+            110,
+            111,
+            112,
+            113,
+            114
+        ]
+    },
+    {
+        "id": 20,
+        "question": "Komponen utama yang tidak memiliki sertifikat TKDN diperhitungkan sebesar 100% apabila:",
+        "options": [
+            "A. Diproduksi perusahaan dalam negeri",
+            "B. Bahan Baku dari dalam negeri",
+            "C. Diperoleh dari sumber daya alam dalam negeri",
+            "D. Semuanya benar"
+        ],
+        "answer": "D. Semuanya benar",
+        "sources": [
+            115,
+            116,
+            117
+        ]
+    },
+    {
+        "id": 21,
+        "question": "Perusahaan yang melakukan kegiatan Industri yang memiliki perizinan berusaha di bidang Industri selain Jasa Industri, merupakan pengertian dari:",
+        "options": [
+            "A. Perusahaan transportasi",
+            "B. Perusahaan Industri",
+            "C. Perusahaan tambang",
+            "D. Perusahaan Manufaktur"
+        ],
+        "answer": "B. Perusahaan Industri",
+        "sources": [
+            118,
+            119
+        ]
+    },
+    {
+        "id": 22,
+        "question": "Diperhitungkan sebesar 25% (dua puluh lima persen) apabila komponen utama yang digunakan memiliki nilai TKDN sebesar:",
+        "options": [
+            "A. 25%",
+            "B. 28%",
+            "C. 15%",
+            "D. 30%"
+        ],
+        "answer": "A. 25%",
+        "sources": [
+            120,
+            121,
+            122,
+            123,
+            124
+        ]
+    },
+    {
+        "id": 23,
+        "question": "Laporan hasil verifikasi BMP pada pasal 34 permenperin 35 tahun 2025 ayat 2 paling sedikit memuat, kecuali :",
+        "options": [
+            "A. Nama Perusahaan",
+            "B. Alamat verifikator",
+            "C. Alamat Pabrik",
+            "D. Skala perusahaan"
+        ],
+        "answer": "D. Skala perusahaan",
+        "sources": [
+            125,
+            126,
+            127,
+            128,
+            129
+        ]
+    },
+    {
+        "id": 24,
+        "question": "Dalam 5 (lima) tahun berlakunya sertifikat TKDN dilakukan surveilans sebanyak :",
+        "options": [
+            "A. 1(satu) kali",
+            "B. 2 (dua) kali",
+            "C. Berkali - kali",
+            "D. 5 (lima) kali"
+        ],
+        "answer": "B. 2 (dua) kali",
+        "sources": [
+            130,
+            131,
+            132,
+            133,
+            134
+        ]
+    },
+    {
+        "id": 25,
+        "question": "Laporan hasil surveilans dapat dilakukan secara elektronik melalui:",
+        "options": [
+            "A. Email Kemenperin",
+            "B. SIINas",
+            "C. Telegram",
+            "D. Discord"
+        ],
+        "answer": "B. SIINas",
+        "sources": [
+            135,
+            136,
+            137,
+            138,
+            139
+        ]
+    }
+]

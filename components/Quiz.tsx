@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Question, UserAnswer, UserProfile } from '../types';
 import { useLanguage } from '../App';
 import { translations } from '../translations';
@@ -7,7 +7,7 @@ import { translations } from '../translations';
 interface QuizProps {
   questions: Question[];
   profile: UserProfile;
-  onFinish: (answers: UserAnswer[]) => void;
+  onFinish: (answers: UserAnswer[], questions: Question[]) => void;
 }
 
 const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish }) => {
@@ -15,27 +15,94 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish }) => {
   const t = translations[language];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
-  const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  
+  // State for shuffled questions to keep them stable during the quiz
+  const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
+
+  // Initialize shuffled questions once when component mounts or questions prop changes
+  useEffect(() => {
+    const shuffleData = () => {
+      // 1. Shuffle the question array first
+      const shuffledQ = [...questions].sort(() => Math.random() - 0.5);
+
+      // 2. For each question, shuffle its options
+      const finalQuestions = shuffledQ.map(q => {
+        const optionIndices = q.options.id.map((_, i) => i);
+        
+        // Fisher-Yates shuffle for options
+        for (let i = optionIndices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [optionIndices[i], optionIndices[j]] = [optionIndices[j], optionIndices[i]];
+        }
+
+        // Map original properties to new shuffled positions
+        const newOptionsEn = optionIndices.map(i => q.options.en[i]);
+        const newOptionsId = optionIndices.map(i => q.options.id[i]);
+        
+        // Find where the original correct answer ended up
+        const newCorrectIndex = optionIndices.indexOf(q.correctAnswerIndex);
+
+        return {
+          ...q,
+          options: {
+            en: newOptionsEn,
+            id: newOptionsId
+          },
+          correctAnswerIndex: newCorrectIndex
+        };
+      });
+
+      setShuffledQuestions(finalQuestions);
+    };
+
+    shuffleData();
+  }, [questions]);
+
+  // Handle loading state until initialization is complete
+  if (shuffledQuestions.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const currentQuestion = shuffledQuestions[currentIndex];
+  const progress = ((currentIndex + 1) / shuffledQuestions.length) * 100;
 
   const handleSelect = (optionIndex: number) => {
     const newAnswers = [...answers];
     const existingIndex = newAnswers.findIndex(a => a.questionId === currentQuestion.id);
 
+    // Create the answer object with reference to the SHUFFLED internal state's correct index
+    // Wait, the UserAnswer type usually stores the user's selected index.
+    // The calculation in Results.tsx uses ASSESSMENT_QUESTIONS.find... so we need to be careful.
+    // Actually, Results.tsx should compare with the question instance it has.
+    
     if (existingIndex > -1) {
-      newAnswers[existingIndex] = { questionId: currentQuestion.id, answerIndex: optionIndex };
+      newAnswers[existingIndex] = { 
+        questionId: currentQuestion.id, 
+        answerIndex: optionIndex,
+        // We'll pass the question object enrichment if needed, but let's see Results.tsx first.
+      };
     } else {
-      newAnswers.push({ questionId: currentQuestion.id, answerIndex: optionIndex });
+      newAnswers.push({ 
+        questionId: currentQuestion.id, 
+        answerIndex: optionIndex 
+      });
     }
 
     setAnswers(newAnswers);
 
     // Auto-advance with a slight delay for visual feedback
     setTimeout(() => {
-      if (currentIndex < questions.length - 1) {
+      if (currentIndex < shuffledQuestions.length - 1) {
         setCurrentIndex(prev => prev + 1);
       } else {
-        onFinish(newAnswers);
+        // We need to pass the SHUFFLED questions too or ensure onFinish can handle it.
+        // If we only pass answers, Results.tsx needs to know which questions were used.
+        // Let's modify onFinish to accept the questions too.
+        onFinish(newAnswers, shuffledQuestions);
       }
     }, 300);
   };
@@ -48,7 +115,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish }) => {
       <div className="mb-12">
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            {t.questionOf.replace('{current}', (currentIndex + 1).toString()).replace('{total}', questions.length.toString())}
+            {t.questionOf.replace('{current}', (currentIndex + 1).toString()).replace('{total}', shuffledQuestions.length.toString())}
           </span>
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
             {Math.round(progress)}%

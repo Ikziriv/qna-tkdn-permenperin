@@ -1,6 +1,6 @@
 
 import React, { useState, createContext, useContext } from 'react';
-import { UserProfile, UserAnswer, AppState, Language } from './types';
+import { UserProfile, UserAnswer, AppState, Language, Question } from './types';
 import { ASSESSMENT_QUESTIONS } from './constants';
 import Layout from './components/Layout';
 import Onboarding from './components/Onboarding';
@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const [currentState, setCurrentState] = useState<AppState>(AppState.ONBOARDING);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
+  const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [language, setLanguage] = useState<Language>('id');
 
   const handleStart = (userProfile: UserProfile) => {
@@ -31,14 +32,16 @@ const App: React.FC = () => {
     setCurrentState(AppState.QUIZ);
   };
 
-  const handleFinish = (userAnswers: UserAnswer[]) => {
+  const handleFinish = (userAnswers: UserAnswer[], questions: Question[]) => {
     setAnswers(userAnswers);
+    setQuizQuestions(questions);
     setCurrentState(AppState.RESULTS);
   };
 
   const handleRestart = () => {
     setProfile(null);
     setAnswers([]);
+    setQuizQuestions([]);
     setCurrentState(AppState.ONBOARDING);
   };
 
@@ -61,7 +64,7 @@ const App: React.FC = () => {
           <Results 
             profile={profile} 
             answers={answers} 
-            questions={ASSESSMENT_QUESTIONS}
+            questions={quizQuestions}
             onRestart={handleRestart}
           />
         )}
