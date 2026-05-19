@@ -29,13 +29,23 @@ export interface UserAnswer {
 }
 
 export enum AppState {
+  AUTH = 'AUTH',
   ONBOARDING = 'ONBOARDING',
   QUIZ = 'QUIZ',
-  RESULTS = 'RESULTS'
+  RESULTS = 'RESULTS',
+  HISTORY = 'HISTORY',
+  ADMIN = 'ADMIN'
 }
 
 export interface AssessmentResult {
   score: number;
   feedback: string;
   categoryBreakdown: Record<string, number>;
+}
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
 }

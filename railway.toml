@@ -1,0 +1,15 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm run server"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[environments.production.deploy]
+numReplicas = 1
+
+[environments.staging.deploy]
+numReplicas = 1
