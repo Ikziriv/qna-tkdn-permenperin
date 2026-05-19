@@ -4,7 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Question, UserAnswer, UserProfile } from '@/types';
 import { QuestionNavPad, Modal, Spinner, Toast } from '@/components/ui';
 import { useFormValidation } from '@/lib/hooks/useFormValidation';
-import { useQuizSaveProgress } from '@/lib/hooks/useQuizSaveProgress';
+import { useNetworkStatus } from '@/lib/hooks/useNetworkStatus';
+import {
+  saveProgressDebounced,
+  loadProgress,
+  clearProgress,
+  flushDebouncedProgress,
+} from '@/lib/sessionStorageProgress';
+import { startQuizTracking, logQuizAnswerTracking, completeQuizTracking } from '@/lib/activityTracking';
 
 interface QuizProps {
   questions: Question[];
@@ -37,27 +44,21 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
 
   // Form validation and progress saving
   const { isComplete, unansweredIndices, unansweredCount, answeredCount } = useFormValidation(shuffledQuestions, answers);
-  const { isSaving, saveError, saveProgress, clearError: clearSaveError } = useQuizSaveProgress(onSaveProgress);
+  const { isOnline } = useNetworkStatus();
 
   const DEFAULT_TIMER_SECONDS = 30 * 60;
   const [timeRemaining, setTimeRemaining] = useState(DEFAULT_TIMER_SECONDS);
   const [timerExpired, setTimerExpired] = useState(false);
+  const [autoSaved, setAutoSaved] = useState(false);
 
-  // Initialize state and handle checkpoints
+  // Initialize state and handle checkpoints from sessionStorage
   useEffect(() => {
-    const savedCheckpoint = localStorage.getItem('tkdn_quiz_checkpoint');
-    if (savedCheckpoint) {
-      const { 
-        shuffledQuestions: savedShuffled, 
-        currentIndex: savedIndex, 
-        answers: savedAnswers,
-        timeRemaining: savedTime
-      } = JSON.parse(savedCheckpoint);
-      
-      setShuffledQuestions(savedShuffled);
-      setCurrentIndex(savedIndex);
-      setAnswers(savedAnswers);
-      setTimeRemaining(savedTime ?? DEFAULT_TIMER_SECONDS);
+    const saved = loadProgress();
+    if (saved && saved.shuffledQuestions.length > 0) {
+      setShuffledQuestions(saved.shuffledQuestions as Question[]);
+      setCurrentIndex(saved.currentIndex);
+      setAnswers(saved.answers);
+      setTimeRemaining(saved.timeRemaining ?? DEFAULT_TIMER_SECONDS);
       return;
     }
 
@@ -86,18 +87,18 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
     };
 
     shuffleData();
+    startQuizTracking();
   }, [questions]);
 
-  // Save checkpoint whenever state changes
+  // Debounced sessionStorage checkpoint
   useEffect(() => {
     if (shuffledQuestions.length > 0) {
-      const checkpoint = {
+      saveProgressDebounced({
         shuffledQuestions,
         currentIndex,
         answers,
-        timeRemaining
-      };
-      localStorage.setItem('tkdn_quiz_checkpoint', JSON.stringify(checkpoint));
+        timeRemaining,
+      }, 300);
     }
   }, [shuffledQuestions, currentIndex, answers, timeRemaining]);
 
@@ -122,6 +123,9 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
       if (result && typeof (result as Promise<void>).then === 'function') {
         await result;
       }
+      completeQuizTracking();
+      flushDebouncedProgress();
+      clearProgress();
     } catch (err: any) {
       setSubmitError(err.message || t('quiz.submitError'));
     } finally {
@@ -172,6 +176,18 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
     }
   }, [timeRemaining, timerExpired, isSubmitting, answers, performSubmit]);
 
+  // Show auto-saved indicator briefly after debounced write
+  useEffect(() => {
+    if (shuffledQuestions.length > 0 && answers.length > 0) {
+      const timer = setTimeout(() => setAutoSaved(true), 400);
+      const hideTimer = setTimeout(() => setAutoSaved(false), 2400);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [answers, shuffledQuestions.length]);
+
   // Handle loading state until initialization is complete
   if (shuffledQuestions.length === 0) {
     return (
@@ -214,6 +230,10 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
 
     setAnswers(newAnswers);
 
+    // Track the answer event
+    const isCorrect = optionIndex === currentQuestion.correctAnswerIndex;
+    logQuizAnswerTracking(currentQuestion.id, optionIndex, isCorrect);
+
     // Auto-advance with a slight delay for visual feedback
     setTimeout(() => {
       if (currentIndex < shuffledQuestions.length - 1) {
@@ -229,16 +249,6 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
       return;
     }
     setShowConfirmModal(true);
-  };
-
-  const handleSaveProgressClick = async () => {
-    clearSaveError();
-    const success = await saveProgress(answers);
-    if (success) {
-      setToast({ message: t('quiz.progressSaved'), type: 'success', visible: true });
-    } else {
-      setToast({ message: saveError || t('quiz.progressSaveFailed'), type: 'error', visible: true });
-    }
   };
 
   const getLetter = (index: number) => String.fromCharCode(65 + index);
@@ -347,35 +357,25 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgres
         </button>
 
         <div className="flex items-center gap-3">
-          {/* Save Progress Button */}
-          <button
-            type="button"
-            onClick={handleSaveProgressClick}
-            disabled={isSaving || answers.length === 0}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]
-              ${isSaving || answers.length === 0
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-              }`}
-            title={!onSaveProgress ? t('quiz.saveProgressLoginRequired') : undefined}
-          >
-            {isSaving ? (
-              <>
-                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          {/* Auto-save + Network Status */}
+          <div className="flex items-center gap-2">
+            {autoSaved && (
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 px-2 py-1 bg-emerald-50 rounded-lg border border-emerald-100 animate-in fade-in duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                {t('quiz.saving')}
-              </>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h-2v5.586l-1.293-1.293zM9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                </svg>
-                {t('quiz.saveProgress')}
-              </>
+                {t('quiz.autoSaved')}
+              </span>
             )}
-          </button>
+            {!isOnline && (
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 px-2 py-1 bg-amber-50 rounded-lg border border-amber-200">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {t('quiz.offline')}
+              </span>
+            )}
+          </div>
 
           {/* Finish Button */}
           <button

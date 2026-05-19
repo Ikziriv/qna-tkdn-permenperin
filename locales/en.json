@@ -49,6 +49,8 @@
     "progressSaved": "Progress saved successfully",
     "progressSaveFailed": "Failed to save progress. Please try again.",
     "saveProgressLoginRequired": "Login required to save progress",
+    "autoSaved": "Auto-saved",
+    "offline": "Offline",
     "incompleteWarningTitle": "Incomplete Quiz",
     "incompleteWarningDesc": "You have {{count}} unanswered question(s).",
     "unansweredQuestions": "Unanswered Questions",
@@ -170,14 +172,16 @@
       "users": "Users",
       "attempts": "Attempts",
       "leaderboard": "Leaderboard",
-      "reports": "Reports"
+      "reports": "Reports",
+      "activity": "Activity Monitor"
     },
     "tabDescriptions": {
       "overview": "Real-time metrics and analytics",
       "users": "Manage registered accounts and roles",
       "attempts": "Quiz attempt history and details",
       "leaderboard": "Top performers by score",
-      "reports": "Generate and download activity reports"
+      "reports": "Generate and download activity reports",
+      "activity": "Monitor user interactions and engagement"
     },
     "console": "Console",
     "systemStatus": "System Status",
@@ -263,6 +267,46 @@
       "adminsOnly": "Admins Only",
       "generating": "Generating...",
       "generateReport": "Generate Report"
+    },
+    "activity": {
+      "totalEvents": "Total Events",
+      "onboardingSessions": "Onboarding Sessions",
+      "quizAnswersLogged": "Quiz Answers Logged",
+      "completed": "Completed",
+      "abandoned": "Abandoned",
+      "onboardingFunnel": "Onboarding Funnel",
+      "started": "Started",
+      "allEventTypes": "All Event Types",
+      "allStatuses": "All Statuses",
+      "noData": "No data found",
+      "yes": "Yes",
+      "no": "No",
+      "dataManagement": "Data Management",
+      "purgeExpired": "Purge Expired Data",
+      "clearAllData": "Clear All Monitoring Data",
+      "irreversibleWarning": "These actions are irreversible. Purge removes only expired records per retention policy. Clear All removes everything.",
+      "confirmPurge": "Are you sure you want to purge expired monitoring data?",
+      "confirmClearAll": "Are you sure you want to permanently delete ALL monitoring data? This cannot be undone.",
+      "views": {
+        "events": "Events",
+        "onboarding": "Onboarding",
+        "quiz-answers": "Quiz Answers"
+      },
+      "cols": {
+        "id": "ID",
+        "type": "Type",
+        "user": "User",
+        "time": "Time",
+        "name": "Name",
+        "role": "Role",
+        "status": "Status",
+        "startedAt": "Started",
+        "attemptId": "Attempt ID",
+        "questionId": "Question ID",
+        "answer": "Answer",
+        "correct": "Correct",
+        "answeredAt": "Answered"
+      }
     },
     "userDetail": {
       "title": "User Profile",

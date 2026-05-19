@@ -1,9 +1,10 @@
-import React, { useState, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UserProfile, UserAnswer, AppState, AuthUser, Question } from './types';
 import { ASSESSMENT_QUESTIONS } from './constants';
 import { api, clearTokens, getRefreshToken } from './lib/api';
+import { withRetry } from './lib/retry';
 import { LanguageProvider } from '@/components/providers';
 import { AppLayout } from '@/components/layout';
 import { OnboardingForm } from '@/components/feature/onboarding';
@@ -277,87 +278,149 @@ const App: React.FC = () => {
       };
     });
 
+    const payload = {
+      quizId: 1,
+      totalQuestions: questions.length,
+      score,
+      correctAnswers,
+      timeSpentSeconds: 0,
+      responses,
+    };
+
+    const isOnline = navigator.onLine;
+
     if (authUser) {
+      if (!isOnline) {
+        queueSubmission({ type: "authenticated", payload });
+        stopLoading();
+        return;
+      }
+
       try {
-        const attemptRes = await api.quiz.createAttempt({
-          quizId: 1,
-          totalQuestions: questions.length,
-        });
-        await api.quiz.completeAttempt(attemptRes.attempt.id, {
-          score,
-          correctAnswers,
-          timeSpentSeconds: 0,
-        });
-        await api.quiz.saveResponses({
-          attemptId: attemptRes.attempt.id,
-          responses,
-        });
+        const result = await withRetry(
+          () => api.progress.submitFinal(payload),
+          { maxRetries: 3, baseDelayMs: 500 }
+        );
+
+        // Post-submission verification
+        if (result.attemptId) {
+          const verify = await api.progress.verify(result.attemptId);
+          if (!verify.exists) {
+            console.warn("[FINISH] Verification failed for attempt", result.attemptId);
+            queueSubmission({ type: "authenticated", payload });
+          }
+        }
       } catch (err) {
         console.error("Failed to persist quiz results:", err);
+        queueSubmission({ type: "authenticated", payload });
       }
     } else {
-      try {
-        const startRes = await api.quiz.anonymous.start({
-          quizId: 1,
-          totalQuestions: questions.length,
-        });
-        const startData = await startRes.json();
-        if (startData.sessionToken) {
-          setAnonymousSessionToken(startData.sessionToken);
-          sessionStorage.setItem('tkdn_anon_token', startData.sessionToken);
+      if (!isOnline) {
+        queueSubmission({ type: "anonymous", payload });
+        stopLoading();
+        return;
+      }
 
-          await api.quiz.anonymous.complete(startData.sessionToken, {
-            score,
-            correctAnswers,
-            timeSpentSeconds: 0,
-            responses,
-          });
+      try {
+        const result = await withRetry(
+          () => api.progress.submitAnonymousFinal(payload),
+          { maxRetries: 3, baseDelayMs: 500 }
+        );
+
+        if (result.sessionToken) {
+          setAnonymousSessionToken(result.sessionToken);
+          sessionStorage.setItem('tkdn_anon_token', result.sessionToken);
+
+          const verify = await api.progress.verifyAnonymous(result.sessionToken);
+          if (!verify.exists) {
+            console.warn("[FINISH] Verification failed for anonymous session", result.sessionToken);
+            queueSubmission({ type: "anonymous", payload });
+          }
         }
       } catch (err) {
         console.error("Failed to persist anonymous quiz results:", err);
+        queueSubmission({ type: "anonymous", payload });
       }
     }
     stopLoading();
   };
 
-  const handleSaveProgress = async (userAnswers: UserAnswer[]) => {
-    if (!authUser) {
-      throw new Error('Login required to save progress.');
-    }
+  // ── Offline Submission Queue ──────────────────────────────────────
 
-    let attemptId = currentAttemptId;
+  interface QueuedSubmission {
+    type: "authenticated" | "anonymous";
+    payload: {
+      quizId: number;
+      totalQuestions: number;
+      score: number;
+      correctAnswers: number;
+      timeSpentSeconds: number;
+      responses: { questionId: number; selectedAnswerIndex: number; isCorrect: boolean }[];
+    };
+  }
 
-    // Lazy-create attempt on first save
-    if (!attemptId) {
-      try {
-        const attemptRes = await api.quiz.createAttempt({
-          quizId: 1,
-          totalQuestions: ASSESSMENT_QUESTIONS.length,
-        });
-        attemptId = attemptRes.attempt.id;
-        setCurrentAttemptId(attemptId);
-      } catch (err: any) {
-        throw new Error(err?.message || 'Failed to create attempt.');
-      }
-    }
-
-    const responses = userAnswers.map((ua) => {
-      const q = ASSESSMENT_QUESTIONS.find((q) => q.id === ua.questionId);
-      return {
-        questionId: ua.questionId,
-        selectedAnswerIndex: ua.answerIndex,
-        isCorrect: q ? q.correctAnswerIndex === ua.answerIndex : false,
-      };
-    });
-
+  function queueSubmission(item: QueuedSubmission): void {
     try {
-      await api.quiz.saveResponses({
-        attemptId: attemptId!,
-        responses,
-      });
-    } catch (err: any) {
-      throw new Error(err?.message || 'Failed to save responses.');
+      const existing: QueuedSubmission[] = JSON.parse(
+        sessionStorage.getItem("tkdn_pending_submissions") || "[]"
+      );
+      existing.push(item);
+      sessionStorage.setItem("tkdn_pending_submissions", JSON.stringify(existing));
+      console.info("[QUEUE] Submission queued for later sync.");
+    } catch {
+      console.error("[QUEUE] Failed to queue submission.");
     }
+  }
+
+  async function processSubmissionQueue(): Promise<void> {
+    if (!navigator.onLine) return;
+    try {
+      const raw = sessionStorage.getItem("tkdn_pending_submissions");
+      if (!raw) return;
+      const queue: QueuedSubmission[] = JSON.parse(raw);
+      if (queue.length === 0) return;
+
+      const remaining: QueuedSubmission[] = [];
+      for (const item of queue) {
+        try {
+          if (item.type === "authenticated" && authUser) {
+            await withRetry(() => api.progress.submitFinal(item.payload), { maxRetries: 2 });
+          } else if (item.type === "anonymous") {
+            await withRetry(() => api.progress.submitAnonymousFinal(item.payload), { maxRetries: 2 });
+          } else {
+            remaining.push(item);
+          }
+        } catch {
+          remaining.push(item);
+        }
+      }
+
+      if (remaining.length > 0) {
+        sessionStorage.setItem("tkdn_pending_submissions", JSON.stringify(remaining));
+      } else {
+        sessionStorage.removeItem("tkdn_pending_submissions");
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // Process queue when connectivity is restored
+  useEffect(() => {
+    const handleOnline = () => {
+      console.info("[NETWORK] Online detected — processing queued submissions.");
+      processSubmissionQueue();
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [authUser]);
+
+  // ── Save Progress (now sessionStorage-only; no DB partial writes) ──
+
+  const handleSaveProgress = async (_userAnswers: UserAnswer[]) => {
+    // Partial progress is auto-saved to sessionStorage by QuizContainer.
+    // This callback is kept for backward compatibility and shows a toast.
+    return Promise.resolve();
   };
 
   const handleRestart = () => {

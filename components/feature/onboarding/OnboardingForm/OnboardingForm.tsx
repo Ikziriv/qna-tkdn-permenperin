@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserProfile } from '@/types';
+import { startOnboardingTracking, completeOnboardingTracking, abandonOnboardingTracking } from '@/lib/activityTracking';
 
 interface OnboardingProps {
   onStart: (profile: UserProfile) => void;
@@ -12,13 +13,24 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
   const [profile, setProfile] = useState<UserProfile>({ name: '', role: '' });
   const [error, setError] = useState('');
   const [showInfo, setShowInfo] = useState(false);
+  const completedRef = useRef(false);
 
-  // Load profile from localStorage on mount
+  // Load profile from localStorage on mount and start tracking
   React.useEffect(() => {
     const savedProfile = localStorage.getItem('tkdn_profile');
     if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
+      const parsed = JSON.parse(savedProfile);
+      setProfile(parsed);
+      startOnboardingTracking(parsed.name, parsed.role);
+    } else {
+      startOnboardingTracking();
     }
+
+    return () => {
+      if (!completedRef.current) {
+        abandonOnboardingTracking();
+      }
+    };
   }, []);
 
   // Auto-save profile as the user types
@@ -34,6 +46,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
       setError(t('onboarding.validationError'));
       return;
     }
+    completedRef.current = true;
+    completeOnboardingTracking(profile.name, profile.role);
     onStart(profile);
   };
 

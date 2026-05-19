@@ -49,6 +49,8 @@
     "progressSaved": "Progres berhasil disimpan",
     "progressSaveFailed": "Gagal menyimpan progres. Silakan coba lagi.",
     "saveProgressLoginRequired": "Login diperlukan untuk menyimpan progres",
+    "autoSaved": "Tersimpan otomatis",
+    "offline": "Tidak terhubung",
     "incompleteWarningTitle": "Evaluasi Belum Lengkap",
     "incompleteWarningDesc": "Anda memiliki {{count}} pertanyaan yang belum dijawab.",
     "unansweredQuestions": "Pertanyaan Belum Dijawab",
@@ -170,14 +172,16 @@
       "users": "Pengguna",
       "attempts": "Percobaan",
       "leaderboard": "Papan Peringkat",
-      "reports": "Laporan"
+      "reports": "Laporan",
+      "activity": "Monitor Aktivitas"
     },
     "tabDescriptions": {
       "overview": "Metrik dan analitik waktu nyata",
       "users": "Kelola akun terdaftar dan peran",
       "attempts": "Riwayat dan detail percobaan evaluasi",
       "leaderboard": "Performa terbaik berdasarkan skor",
-      "reports": "Hasilkan dan unduh laporan aktivitas"
+      "reports": "Hasilkan dan unduh laporan aktivitas",
+      "activity": "Pantau interaksi dan keterlibatan pengguna"
     },
     "console": "Konsol",
     "systemStatus": "Status Sistem",
@@ -263,6 +267,46 @@
       "adminsOnly": "Hanya Admin",
       "generating": "Menghasilkan...",
       "generateReport": "Hasilkan Laporan"
+    },
+    "activity": {
+      "totalEvents": "Total Event",
+      "onboardingSessions": "Sesi Onboarding",
+      "quizAnswersLogged": "Jawaban Kuis Tercatat",
+      "completed": "Selesai",
+      "abandoned": "Ditinggalkan",
+      "onboardingFunnel": "Corong Onboarding",
+      "started": "Dimulai",
+      "allEventTypes": "Semua Jenis Event",
+      "allStatuses": "Semua Status",
+      "noData": "Tidak ada data",
+      "yes": "Ya",
+      "no": "Tidak",
+      "dataManagement": "Manajemen Data",
+      "purgeExpired": "Hapus Data Kedaluwarsa",
+      "clearAllData": "Hapus Semua Data Monitoring",
+      "irreversibleWarning": "Tindakan ini tidak dapat dibatalkan. Penghapusan kedaluwarsa hanya menghapus rekaman sesuai kebijakan retensi. Hapus Semua menghapus semuanya.",
+      "confirmPurge": "Apakah Anda yakin ingin menghapus data monitoring yang kedaluwarsa?",
+      "confirmClearAll": "Apakah Anda yakin ingin menghapus SEMUA data monitoring secara permanen? Tindakan ini tidak dapat dibatalkan.",
+      "views": {
+        "events": "Event",
+        "onboarding": "Onboarding",
+        "quiz-answers": "Jawaban Kuis"
+      },
+      "cols": {
+        "id": "ID",
+        "type": "Jenis",
+        "user": "Pengguna",
+        "time": "Waktu",
+        "name": "Nama",
+        "role": "Peran",
+        "status": "Status",
+        "startedAt": "Dimulai",
+        "attemptId": "ID Percobaan",
+        "questionId": "ID Pertanyaan",
+        "answer": "Jawaban",
+        "correct": "Benar",
+        "answeredAt": "Dijawab"
+      }
     },
     "userDetail": {
       "title": "Profil Pengguna",

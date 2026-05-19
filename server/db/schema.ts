@@ -148,6 +148,75 @@ export const reportAccessLogsRelations = relations(reportAccessLogs, ({ one }) =
   user: one(users, { fields: [reportAccessLogs.userId], references: [users.id] }),
 }));
 
+/* ── Activity Monitoring Tables ────────────────────────────────────── */
+
+export const activityEvents = pgTable("activity_events", {
+  id: serial("id").primaryKey(),
+  eventType: varchar("event_type", { length: 50 }).notNull(),
+  // onboarding_start, onboarding_complete, onboarding_abandon,
+  // quiz_start, quiz_answer, quiz_complete, quiz_abandon,
+  // page_view, login, logout, register
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+  sessionId: varchar("session_id", { length: 255 }),
+  payload: text("payload"), // JSON string with event-specific data
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const activityEventsRelations = relations(activityEvents, ({ one }) => ({
+  user: one(users, { fields: [activityEvents.userId], references: [users.id] }),
+}));
+
+export const onboardingSessions = pgTable("onboarding_sessions", {
+  id: serial("id").primaryKey(),
+  sessionToken: varchar("session_token", { length: 255 }).notNull().unique(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+  name: varchar("name", { length: 255 }),
+  role: varchar("role", { length: 100 }),
+  completionStatus: varchar("completion_status", { length: 20 }).notNull().default("started"),
+  // started, completed, abandoned
+  stepProgress: text("step_progress"), // JSON: { currentStep, fieldsFilled, timeSpentMs }
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  abandonedAt: timestamp("abandoned_at"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+});
+
+export const onboardingSessionsRelations = relations(onboardingSessions, ({ one }) => ({
+  user: one(users, { fields: [onboardingSessions.userId], references: [users.id] }),
+}));
+
+export const quizAnswerLogs = pgTable("quiz_answer_logs", {
+  id: serial("id").primaryKey(),
+  attemptId: integer("attempt_id").references(() => quizAttempts.id, { onDelete: "cascade" }),
+  // For anonymous attempts without a linked quizAttempts row, store sessionToken
+  sessionToken: varchar("session_token", { length: 255 }),
+  questionId: integer("question_id").notNull(),
+  selectedAnswerIndex: integer("selected_answer_index").notNull(),
+  isCorrect: boolean("is_correct").notNull(),
+  timeSpentSeconds: integer("time_spent_seconds"),
+  answeredAt: timestamp("answered_at").defaultNow().notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+});
+
+export const quizAnswerLogsRelations = relations(quizAnswerLogs, ({ one }) => ({
+  attempt: one(quizAttempts, { fields: [quizAnswerLogs.attemptId], references: [quizAttempts.id] }),
+}));
+
+export const dataRetentionPolicies = pgTable("data_retention_policies", {
+  id: serial("id").primaryKey(),
+  tableName: varchar("table_name", { length: 100 }).notNull().unique(),
+  retentionDays: integer("retention_days").notNull().default(90),
+  lastPurgeAt: timestamp("last_purge_at"),
+  enabled: boolean("enabled").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/* ── Types ─────────────────────────────────────────────────────────── */
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Quiz = typeof quizzes.$inferSelect;
@@ -166,3 +235,12 @@ export type Report = typeof reports.$inferSelect;
 export type NewReport = typeof reports.$inferInsert;
 export type ReportAccessLog = typeof reportAccessLogs.$inferSelect;
 export type NewReportAccessLog = typeof reportAccessLogs.$inferInsert;
+
+export type ActivityEvent = typeof activityEvents.$inferSelect;
+export type NewActivityEvent = typeof activityEvents.$inferInsert;
+export type OnboardingSession = typeof onboardingSessions.$inferSelect;
+export type NewOnboardingSession = typeof onboardingSessions.$inferInsert;
+export type QuizAnswerLog = typeof quizAnswerLogs.$inferSelect;
+export type NewQuizAnswerLog = typeof quizAnswerLogs.$inferInsert;
+export type DataRetentionPolicy = typeof dataRetentionPolicies.$inferSelect;
+export type NewDataRetentionPolicy = typeof dataRetentionPolicies.$inferInsert;

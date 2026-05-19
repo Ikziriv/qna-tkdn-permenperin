@@ -1,8 +1,18 @@
 import { Router, Request, Response } from "express";
 import { db } from "../db/index";
-import { users, quizzes, quizAttempts, quizResponses, reports, reportAccessLogs } from "../db/schema";
+import {
+  users, quizzes, quizAttempts, quizResponses, reports, reportAccessLogs,
+  activityEvents, onboardingSessions, quizAnswerLogs,
+} from "../db/schema";
 import { eq, desc, sql, count, avg, sum, and, gte, lte } from "drizzle-orm";
 import { authenticateToken, AuthRequest, requireRole } from "../middleware/auth";
+import {
+  getActivityEvents,
+  getOnboardingSessions,
+  getQuizAnswerLogs,
+  purgeExpiredData,
+  clearAllMonitoringData,
+} from "../services/activityTracker";
 
 const router = Router();
 
@@ -369,6 +379,112 @@ router.get("/reports/:id/access-logs", async (req: AuthRequest, res) => {
   } catch (error) {
     console.error("Report access logs error:", error);
     res.status(500).json({ error: "Failed to fetch access logs." });
+  }
+});
+
+// ── Activity Monitoring ─────────────────────────────────────────────────
+
+router.get("/activity/events", async (req: AuthRequest, res) => {
+  try {
+    const { eventType, userId, from, to, limit, offset } = req.query;
+    const result = await getActivityEvents({
+      eventType: eventType as string | undefined,
+      userId: userId ? Number(userId) : undefined,
+      from: from ? new Date(from as string) : undefined,
+      to: to ? new Date(to as string) : undefined,
+      limit: limit ? Number(limit) : 100,
+      offset: offset ? Number(offset) : 0,
+    });
+    res.json(result);
+  } catch (error) {
+    console.error("Admin activity events error:", error);
+    res.status(500).json({ error: "Failed to fetch activity events." });
+  }
+});
+
+router.get("/activity/onboarding", async (req: AuthRequest, res) => {
+  try {
+    const { status, from, to, limit, offset } = req.query;
+    const result = await getOnboardingSessions({
+      status: status as string | undefined,
+      from: from ? new Date(from as string) : undefined,
+      to: to ? new Date(to as string) : undefined,
+      limit: limit ? Number(limit) : 100,
+      offset: offset ? Number(offset) : 0,
+    });
+    res.json(result);
+  } catch (error) {
+    console.error("Admin onboarding sessions error:", error);
+    res.status(500).json({ error: "Failed to fetch onboarding sessions." });
+  }
+});
+
+router.get("/activity/quiz-answers", async (req: AuthRequest, res) => {
+  try {
+    const { attemptId, sessionToken, from, to, limit, offset } = req.query;
+    const result = await getQuizAnswerLogs({
+      attemptId: attemptId ? Number(attemptId) : undefined,
+      sessionToken: sessionToken as string | undefined,
+      from: from ? new Date(from as string) : undefined,
+      to: to ? new Date(to as string) : undefined,
+      limit: limit ? Number(limit) : 100,
+      offset: offset ? Number(offset) : 0,
+    });
+    res.json(result);
+  } catch (error) {
+    console.error("Admin quiz answer logs error:", error);
+    res.status(500).json({ error: "Failed to fetch quiz answer logs." });
+  }
+});
+
+router.get("/activity/stats", async (_req: AuthRequest, res) => {
+  try {
+    const [aeTotal] = await db.select({ total: sql<number>`count(*)` }).from(activityEvents);
+    const [osTotal] = await db.select({ total: sql<number>`count(*)` }).from(onboardingSessions);
+    const [qalTotal] = await db.select({ total: sql<number>`count(*)` }).from(quizAnswerLogs);
+
+    const [osCompleted] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(onboardingSessions)
+      .where(eq(onboardingSessions.completionStatus, "completed"));
+
+    const [osAbandoned] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(onboardingSessions)
+      .where(eq(onboardingSessions.completionStatus, "abandoned"));
+
+    res.json({
+      totalActivityEvents: Number(aeTotal.total),
+      totalOnboardingSessions: Number(osTotal.total),
+      totalQuizAnswerLogs: Number(qalTotal.total),
+      onboardingCompleted: Number(osCompleted.total),
+      onboardingAbandoned: Number(osAbandoned.total),
+    });
+  } catch (error) {
+    console.error("Admin activity stats error:", error);
+    res.status(500).json({ error: "Failed to fetch activity stats." });
+  }
+});
+
+router.post("/activity/purge", async (req: AuthRequest, res) => {
+  try {
+    if (!requireSuperAdmin(req, res)) return;
+    const result = await purgeExpiredData();
+    res.json({ success: true, deleted: result });
+  } catch (error) {
+    console.error("Admin activity purge error:", error);
+    res.status(500).json({ error: "Failed to purge expired data." });
+  }
+});
+
+router.delete("/activity", async (req: AuthRequest, res) => {
+  try {
+    if (!requireSuperAdmin(req, res)) return;
+    const result = await clearAllMonitoringData();
+    res.json({ success: true, deleted: result });
+  } catch (error) {
+    console.error("Admin activity clear error:", error);
+    res.status(500).json({ error: "Failed to clear monitoring data." });
   }
 });
 

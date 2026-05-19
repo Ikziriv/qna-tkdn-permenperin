@@ -183,7 +183,45 @@ export const api = {
     downloadReport: (id: number) =>
       fetch(`${API_URL}/admin/reports/${id}/download`, { headers: { Authorization: `Bearer ${getAccessToken() || ""}` } }),
     getReportAccessLogs: (id: number) => fetchJson(`/admin/reports/${id}/access-logs`),
+    getActivityEvents: (params?: { eventType?: string; userId?: number; from?: string; to?: string; limit?: number; offset?: number }) =>
+      fetchJson(`/admin/activity/events${buildQuery(params)}`),
+    getOnboardingSessions: (params?: { status?: string; from?: string; to?: string; limit?: number; offset?: number }) =>
+      fetchJson(`/admin/activity/onboarding${buildQuery(params)}`),
+    getQuizAnswerLogs: (params?: { attemptId?: number; sessionToken?: string; from?: string; to?: string; limit?: number; offset?: number }) =>
+      fetchJson(`/admin/activity/quiz-answers${buildQuery(params)}`),
+    getActivityStats: () => fetchJson(`/admin/activity/stats`),
+    purgeActivityData: () => fetchJson(`/admin/activity/purge`, { method: "POST" }),
+    clearAllActivityData: () => fetchJson(`/admin/activity`, { method: "DELETE" }),
+  },
+  activity: {
+    track: (body: { eventType: string; userId?: number | null; sessionId?: string; payload?: Record<string, unknown> }) =>
+      fetchJson(`/activity/track`, { method: "POST", body: JSON.stringify(body) }),
+    startOnboarding: (body: { sessionToken: string; userId?: number | null; name?: string; role?: string }) =>
+      fetchJson(`/activity/onboarding/start`, { method: "POST", body: JSON.stringify(body) }),
+    completeOnboarding: (body: { sessionToken: string; name?: string; role?: string; stepProgress?: Record<string, unknown> }) =>
+      fetchJson(`/activity/onboarding/complete`, { method: "POST", body: JSON.stringify(body) }),
+    abandonOnboarding: (body: { sessionToken: string; stepProgress?: Record<string, unknown> }) =>
+      fetchJson(`/activity/onboarding/abandon`, { method: "POST", body: JSON.stringify(body) }),
+    logQuizAnswer: (body: { attemptId?: number | null; sessionToken?: string; questionId: number; selectedAnswerIndex: number; isCorrect: boolean; timeSpentSeconds?: number }) =>
+      fetchJson(`/activity/quiz/answer`, { method: "POST", body: JSON.stringify(body) }),
+    batch: (body: { events: { eventType: string; userId?: number | null; sessionId?: string; payload?: Record<string, unknown>; timestamp?: number; url?: string; referrer?: string; screenWidth?: number; screenHeight?: number }[] }) =>
+      fetchJson(`/activity/batch`, { method: "POST", body: JSON.stringify(body) }),
+  },
+  progress: {
+    submitFinal: (body: { quizId: number; totalQuestions: number; score: number; correctAnswers: number; timeSpentSeconds?: number; responses: { questionId: number; selectedAnswerIndex: number; isCorrect: boolean }[] }) =>
+      fetchJson(`/progress/final`, { method: "POST", body: JSON.stringify(body) }),
+    submitAnonymousFinal: (body: { quizId: number; totalQuestions: number; score: number; correctAnswers: number; timeSpentSeconds?: number; responses: { questionId: number; selectedAnswerIndex: number; isCorrect: boolean }[] }) =>
+      fetchJson(`/progress/anonymous/final`, { method: "POST", body: JSON.stringify(body) }),
+    verify: (attemptId: number) => fetchJson(`/progress/verify/${attemptId}`),
+    verifyAnonymous: (token: string) => fetchJson(`/progress/anonymous/verify/${token}`),
   },
 };
+
+function buildQuery(params?: Record<string, string | number | boolean | undefined>): string {
+  if (!params) return "";
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null);
+  if (entries.length === 0) return "";
+  return "?" + entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&");
+}
 
 export { setTokens, clearTokens, getAccessToken, getRefreshToken };

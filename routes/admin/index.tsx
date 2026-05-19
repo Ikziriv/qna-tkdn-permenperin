@@ -5,6 +5,7 @@ import { usersRoute } from "./usersRoute";
 import { attemptsRoute } from "./attemptsRoute";
 import { leaderboardRoute } from "./leaderboardRoute";
 import { reportsRoute } from "./reportsRoute";
+import { activityRoute } from "./activityRoute";
 import { AdminLayout } from "@/components/layout";
 import { ProtectedRoute } from "@/components/feature/auth";
 
@@ -21,5 +22,6 @@ export const adminRoutes: RouteObject = {
     attemptsRoute,
     leaderboardRoute,
     reportsRoute,
+    activityRoute,
   ],
 };

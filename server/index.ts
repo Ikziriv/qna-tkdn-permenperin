@@ -8,14 +8,18 @@ import authRoutes from "./routes/auth";
 import quizRoutes from "./routes/quiz";
 import anonymousQuizRoutes from "./routes/anonymousQuiz";
 import adminRoutes from "./routes/admin";
+import activityRoutes from "./routes/activity";
+import progressRoutes from "./routes/progress";
 import {
   NODE_ENV,
   PORT,
   IS_PRODUCTION,
   IS_STAGING,
+  IS_DEVELOPMENT,
   CORS_ORIGIN,
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX,
+  getPublicConfig,
 } from "./config/env";
 import { rateLimit } from "./middleware/rateLimit";
 
@@ -96,7 +100,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // --- Health Check (before rate limits) ---
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  const uptimeSeconds = Math.floor(process.uptime());
+  const config = getPublicConfig();
+
+  const payload: Record<string, any> = {
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    uptime: uptimeSeconds,
+    environment: config,
+  };
+
+  // Only expose detailed diagnostics in non-production environments
+  if (IS_DEVELOPMENT || IS_STAGING) {
+    payload.memory = process.memoryUsage();
+    payload.nodeVersion = process.version;
+    payload.platform = process.platform;
+  }
+
+  res.json(payload);
 });
 
 // --- Rate Limiting ---
@@ -123,6 +144,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz", anonymousQuizRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/activity", activityRoutes);
+app.use("/api/progress", progressRoutes);
 
 // --- Serve Frontend (when dist exists) ---
 const distPath = path.resolve(process.cwd(), "dist");
