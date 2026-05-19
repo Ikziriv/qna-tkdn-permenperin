@@ -13,10 +13,11 @@ RUN npm run build
 # --- Production Stage ---
 FROM node:22-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production
 
 COPY package*.json ./
 RUN npm ci
+
+ENV NODE_ENV=production
 
 COPY --from=builder /app/dist ./dist
 COPY server ./server
