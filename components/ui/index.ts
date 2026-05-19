@@ -32,3 +32,6 @@ export type { SpinnerProps } from './Spinner';
 
 export { QuestionNavPad } from './QuestionNavPad';
 export type { QuestionNavPadProps } from './QuestionNavPad';
+
+export { Toast } from './Toast';
+export type { ToastProps } from './Toast';

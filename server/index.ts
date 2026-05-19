@@ -1,5 +1,6 @@
 import "dotenv/config";
 import path from "path";
+import fs from "fs";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,6 +12,7 @@ import {
   NODE_ENV,
   PORT,
   IS_PRODUCTION,
+  IS_STAGING,
   CORS_ORIGIN,
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX,
@@ -122,16 +124,22 @@ app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz", anonymousQuizRoutes);
 app.use("/api/admin", adminRoutes);
 
-// --- Serve Frontend (production only) ---
-if (IS_PRODUCTION) {
-  const distPath = path.resolve(process.cwd(), "dist");
+// --- Serve Frontend (when dist exists) ---
+const distPath = path.resolve(process.cwd(), "dist");
+const hasDist = fs.existsSync(path.join(distPath, "index.html"));
+
+if (hasDist) {
   app.use(express.static(distPath));
+  if (IS_PRODUCTION || IS_STAGING) {
+    console.log(`[SERVER] Serving static files from ${distPath}`);
+  }
+} else if (IS_PRODUCTION || IS_STAGING) {
+  console.warn(`[SERVER WARNING] dist/index.html not found at ${distPath}. Frontend will NOT be served. Run "npm run build" first.`);
 }
 
-// --- 404 Handler ---
+// --- 404 Handler (SPA fallback) ---
 app.use((req: Request, res: Response) => {
-  if (IS_PRODUCTION && !req.path.startsWith("/api")) {
-    const distPath = path.resolve(process.cwd(), "dist");
+  if (hasDist && !req.path.startsWith("/api")) {
     res.sendFile(path.join(distPath, "index.html"));
     return;
   }

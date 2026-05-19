@@ -42,7 +42,19 @@
     "retry": "Try Again",
     "timeLeft": "{{time}} remaining",
     "timeUp": "Time's Up!",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "finish": "Finish",
+    "saveProgress": "Save Progress",
+    "saving": "Saving...",
+    "progressSaved": "Progress saved successfully",
+    "progressSaveFailed": "Failed to save progress. Please try again.",
+    "saveProgressLoginRequired": "Login required to save progress",
+    "incompleteWarningTitle": "Incomplete Quiz",
+    "incompleteWarningDesc": "You have {{count}} unanswered question(s).",
+    "unansweredQuestions": "Unanswered Questions",
+    "questionShort": "Q{{number}}",
+    "proceedAnyway": "Proceed Anyway",
+    "goBackToQuiz": "Go Back to Quiz"
   },
   "results": {
     "summaryTitle": "Regulatory Compliance Summary",

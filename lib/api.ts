@@ -112,9 +112,9 @@ async function fetchJson(path: string, options: RequestInit = {}, retry = true):
 export const api = {
   auth: {
     register: (body: { email: string; password: string; name: string }) =>
-      fetchJson(`${API_URL}/auth/register`, { method: "POST", body: JSON.stringify(body) }),
+      fetchJson(`/auth/register`, { method: "POST", body: JSON.stringify(body) }),
     login: (body: { email: string; password: string; mfaCode?: string }) =>
-      fetchJson(`${API_URL}/auth/login`, { method: "POST", body: JSON.stringify(body) }),
+      fetchJson(`/auth/login`, { method: "POST", body: JSON.stringify(body) }),
     refresh: (refreshToken: string) =>
       fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
@@ -122,24 +122,24 @@ export const api = {
         body: JSON.stringify({ refreshToken }),
       }),
     logout: (refreshToken: string) =>
-      fetchJson(`${API_URL}/auth/logout`, { method: "POST", body: JSON.stringify({ refreshToken }) }),
-    logoutAll: () => fetchJson(`${API_URL}/auth/logout-all`, { method: "POST" }),
-    me: () => fetchJson(`${API_URL}/auth/me`),
-    mfaSetup: () => fetchJson(`${API_URL}/auth/mfa/setup`, { method: "POST" }),
-    mfaVerify: (code: string) => fetchJson(`${API_URL}/auth/mfa/verify`, { method: "POST", body: JSON.stringify({ code }) }),
-    mfaDisable: (code: string) => fetchJson(`${API_URL}/auth/mfa/disable`, { method: "POST", body: JSON.stringify({ code }) }),
+      fetchJson(`/auth/logout`, { method: "POST", body: JSON.stringify({ refreshToken }) }),
+    logoutAll: () => fetchJson(`/auth/logout-all`, { method: "POST" }),
+    me: () => fetchJson(`/auth/me`),
+    mfaSetup: () => fetchJson(`/auth/mfa/setup`, { method: "POST" }),
+    mfaVerify: (code: string) => fetchJson(`/auth/mfa/verify`, { method: "POST", body: JSON.stringify({ code }) }),
+    mfaDisable: (code: string) => fetchJson(`/auth/mfa/disable`, { method: "POST", body: JSON.stringify({ code }) }),
   },
   quiz: {
-    getQuizzes: () => fetchJson(`${API_URL}/quiz/quizzes`),
+    getQuizzes: () => fetchJson(`/quiz/quizzes`),
     createAttempt: (body: { quizId: number; totalQuestions: number }) =>
-      fetchJson(`${API_URL}/quiz/attempts`, { method: "POST", body: JSON.stringify(body) }),
+      fetchJson(`/quiz/attempts`, { method: "POST", body: JSON.stringify(body) }),
     completeAttempt: (id: number, body: { score: number; correctAnswers: number; timeSpentSeconds: number }) =>
-      fetchJson(`${API_URL}/quiz/attempts/${id}/complete`, { method: "PATCH", body: JSON.stringify(body) }),
+      fetchJson(`/quiz/attempts/${id}/complete`, { method: "PATCH", body: JSON.stringify(body) }),
     saveResponses: (body: { attemptId: number; responses: Array<{ questionId: number; selectedAnswerIndex: number; isCorrect: boolean }> }) =>
-      fetchJson(`${API_URL}/quiz/responses`, { method: "POST", body: JSON.stringify(body) }),
-    getMyAttempts: () => fetchJson(`${API_URL}/quiz/my-attempts`),
-    getMyProgress: () => fetchJson(`${API_URL}/quiz/my-progress`),
-    getAttemptResponses: (id: number) => fetchJson(`${API_URL}/quiz/attempts/${id}/responses`),
+      fetchJson(`/quiz/responses`, { method: "POST", body: JSON.stringify(body) }),
+    getMyAttempts: () => fetchJson(`/quiz/my-attempts`),
+    getMyProgress: () => fetchJson(`/quiz/my-progress`),
+    getAttemptResponses: (id: number) => fetchJson(`/quiz/attempts/${id}/responses`),
     exportData: () =>
       fetch(`${API_URL}/quiz/export`, {
         headers: {
@@ -162,27 +162,27 @@ export const api = {
       preview: (token: string) =>
         fetch(`${API_URL}/quiz/anonymous/${token}/preview`),
       link: (token: string) =>
-        fetchJson(`${API_URL}/quiz/anonymous/${token}/link`, { method: "POST" }),
+        fetchJson(`/quiz/anonymous/${token}/link`, { method: "POST" }),
     },
   },
   admin: {
-    getStats: () => fetchJson(`${API_URL}/admin/stats`),
-    getAttempts: () => fetchJson(`${API_URL}/admin/attempts`),
-    getUsers: () => fetchJson(`${API_URL}/admin/users`),
-    getUser: (id: number) => fetchJson(`${API_URL}/admin/users/${id}`),
+    getStats: () => fetchJson(`/admin/stats`),
+    getAttempts: () => fetchJson(`/admin/attempts`),
+    getUsers: () => fetchJson(`/admin/users`),
+    getUser: (id: number) => fetchJson(`/admin/users/${id}`),
     updateRole: (id: number, body: { role: string }) =>
-      fetchJson(`${API_URL}/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify(body) }),
+      fetchJson(`/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify(body) }),
     updateStatus: (id: number, body: { isActive: boolean }) =>
-      fetchJson(`${API_URL}/admin/users/${id}/status`, { method: "PATCH", body: JSON.stringify(body) }),
-    deleteUser: (id: number) => fetchJson(`${API_URL}/admin/users/${id}`, { method: "DELETE" }),
-    getLeaderboard: () => fetchJson(`${API_URL}/admin/leaderboard`),
-    getDailyActivity: () => fetchJson(`${API_URL}/admin/daily-activity`),
+      fetchJson(`/admin/users/${id}/status`, { method: "PATCH", body: JSON.stringify(body) }),
+    deleteUser: (id: number) => fetchJson(`/admin/users/${id}`, { method: "DELETE" }),
+    getLeaderboard: () => fetchJson(`/admin/leaderboard`),
+    getDailyActivity: () => fetchJson(`/admin/daily-activity`),
     generateReport: (body: { name: string; format: string; params?: any }) =>
-      fetchJson(`${API_URL}/admin/reports/generate`, { method: "POST", body: JSON.stringify(body) }),
-    getReports: () => fetchJson(`${API_URL}/admin/reports`),
+      fetchJson(`/admin/reports/generate`, { method: "POST", body: JSON.stringify(body) }),
+    getReports: () => fetchJson(`/admin/reports`),
     downloadReport: (id: number) =>
       fetch(`${API_URL}/admin/reports/${id}/download`, { headers: { Authorization: `Bearer ${getAccessToken() || ""}` } }),
-    getReportAccessLogs: (id: number) => fetchJson(`${API_URL}/admin/reports/${id}/access-logs`),
+    getReportAccessLogs: (id: number) => fetchJson(`/admin/reports/${id}/access-logs`),
   },
 };
 

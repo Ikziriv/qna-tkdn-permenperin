@@ -2,16 +2,19 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Question, UserAnswer, UserProfile } from '@/types';
-import { QuestionNavPad, Modal, Spinner } from '@/components/ui';
+import { QuestionNavPad, Modal, Spinner, Toast } from '@/components/ui';
+import { useFormValidation } from '@/lib/hooks/useFormValidation';
+import { useQuizSaveProgress } from '@/lib/hooks/useQuizSaveProgress';
 
 interface QuizProps {
   questions: Question[];
   profile: UserProfile;
   onFinish: (answers: UserAnswer[], questions: Question[]) => void | Promise<void>;
+  onSaveProgress?: (answers: UserAnswer[]) => Promise<void>;
   isAuthenticated?: boolean;
 }
 
-const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticated = true }) => {
+const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, onSaveProgress, isAuthenticated = true }) => {
   const { t, i18n } = useTranslation();
   const language = i18n.language as 'en' | 'id';
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -20,11 +23,21 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticat
   // State for shuffled questions to keep them stable during the quiz
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const pendingAnswersRef = useRef<UserAnswer[]>([]);
   const okButtonRef = useRef<HTMLButtonElement>(null);
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; visible: boolean }>({
+    message: '', type: 'info', visible: false,
+  });
+
+  // Form validation and progress saving
+  const { isComplete, unansweredIndices, unansweredCount, answeredCount } = useFormValidation(shuffledQuestions, answers);
+  const { isSaving, saveError, saveProgress, clearError: clearSaveError } = useQuizSaveProgress(onSaveProgress);
 
   const DEFAULT_TIMER_SECONDS = 30 * 60;
   const [timeRemaining, setTimeRemaining] = useState(DEFAULT_TIMER_SECONDS);
@@ -187,21 +200,15 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticat
     const newAnswers = [...answers];
     const existingIndex = newAnswers.findIndex(a => a.questionId === currentQuestion.id);
 
-    // Create the answer object with reference to the SHUFFLED internal state's correct index
-    // Wait, the UserAnswer type usually stores the user's selected index.
-    // The calculation in Results.tsx uses ASSESSMENT_QUESTIONS.find... so we need to be careful.
-    // Actually, Results.tsx should compare with the question instance it has.
-    
     if (existingIndex > -1) {
-      newAnswers[existingIndex] = { 
-        questionId: currentQuestion.id, 
+      newAnswers[existingIndex] = {
+        questionId: currentQuestion.id,
         answerIndex: optionIndex,
-        // We'll pass the question object enrichment if needed, but let's see Results.tsx first.
       };
     } else {
-      newAnswers.push({ 
-        questionId: currentQuestion.id, 
-        answerIndex: optionIndex 
+      newAnswers.push({
+        questionId: currentQuestion.id,
+        answerIndex: optionIndex,
       });
     }
 
@@ -211,11 +218,27 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticat
     setTimeout(() => {
       if (currentIndex < shuffledQuestions.length - 1) {
         setCurrentIndex(prev => prev + 1);
-      } else {
-        pendingAnswersRef.current = newAnswers;
-        setShowConfirmModal(true);
       }
     }, 300);
+  };
+
+  const handleFinishClick = () => {
+    pendingAnswersRef.current = answers;
+    if (!isComplete) {
+      setShowWarningModal(true);
+      return;
+    }
+    setShowConfirmModal(true);
+  };
+
+  const handleSaveProgressClick = async () => {
+    clearSaveError();
+    const success = await saveProgress(answers);
+    if (success) {
+      setToast({ message: t('quiz.progressSaved'), type: 'success', visible: true });
+    } else {
+      setToast({ message: saveError || t('quiz.progressSaveFailed'), type: 'error', visible: true });
+    }
   };
 
   const getLetter = (index: number) => String.fromCharCode(65 + index);
@@ -311,7 +334,7 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticat
         </div>
       </div>
 
-      <div className="mt-10 flex justify-between items-center px-4">
+      <div className="mt-10 flex flex-col sm:flex-row justify-between items-center gap-4 px-4">
         <button
           onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
           disabled={currentIndex === 0}
@@ -322,17 +345,131 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticat
           </svg>
           {t('quiz.back')}
         </button>
+
         <div className="flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white" />
-            ))}
-          </div>
-          <span className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] italic">
-            {t('quiz.draftingFor', { name: profile.name })}
-          </span>
+          {/* Save Progress Button */}
+          <button
+            type="button"
+            onClick={handleSaveProgressClick}
+            disabled={isSaving || answers.length === 0}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]
+              ${isSaving || answers.length === 0
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+              }`}
+            title={!onSaveProgress ? t('quiz.saveProgressLoginRequired') : undefined}
+          >
+            {isSaving ? (
+              <>
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                {t('quiz.saving')}
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h-2v5.586l-1.293-1.293zM9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                </svg>
+                {t('quiz.saveProgress')}
+              </>
+            )}
+          </button>
+
+          {/* Finish Button */}
+          <button
+            type="button"
+            onClick={handleFinishClick}
+            className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]
+              ${isComplete
+                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200'
+                : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+              }`}
+          >
+            {isComplete ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            )}
+            {t('quiz.finish')}
+            {!isComplete && (
+              <span className="ml-1 text-xs opacity-80">
+                ({answeredCount}/{shuffledQuestions.length})
+              </span>
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Incomplete Warning Modal */}
+      <Modal
+        isOpen={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+        closeOnBackdropClick={false}
+        maxWidth="max-w-md"
+      >
+        <div className="text-center">
+          <div className="mx-auto w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <h2 id="warning-title" className="text-lg font-bold text-slate-900 mb-2">
+            {t('quiz.incompleteWarningTitle')}
+          </h2>
+          <p className="text-slate-500 text-sm mb-4">
+            {t('quiz.incompleteWarningDesc', { count: unansweredCount })}
+          </p>
+
+          {unansweredIndices.length > 0 && (
+            <div className="bg-slate-50 rounded-xl p-3 mb-4 text-left max-h-40 overflow-y-auto">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                {t('quiz.unansweredQuestions')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {unansweredIndices.map((idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setCurrentIndex(idx);
+                      setShowWarningModal(false);
+                    }}
+                    className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                  >
+                    {t('quiz.questionShort', { number: idx + 1 })}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => {
+                setShowWarningModal(false);
+                setShowConfirmModal(true);
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-200 active:scale-[0.98] transition-all"
+            >
+              {t('quiz.proceedAnyway')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowWarningModal(false)}
+              className="w-full bg-white hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 rounded-xl border border-slate-200 active:scale-[0.98] transition-all"
+            >
+              {t('quiz.goBackToQuiz')}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Confirmation Modal */}
       <Modal
@@ -410,6 +547,15 @@ const Quiz: React.FC<QuizProps> = ({ questions, profile, onFinish, isAuthenticat
           </div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        visible={toast.visible}
+        onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+        duration={4000}
+      />
     </div>
   );
 };

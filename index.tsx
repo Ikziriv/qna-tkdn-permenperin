@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './i18n';
 import App from '@/App';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LoadingProvider } from '@/contexts/LoadingContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -16,7 +17,9 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <LoadingProvider>
+          <App />
+        </LoadingProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

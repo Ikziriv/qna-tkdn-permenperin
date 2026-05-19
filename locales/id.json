@@ -42,7 +42,19 @@
     "retry": "Coba Lagi",
     "timeLeft": "{{time}} tersisa",
     "timeUp": "Waktu Habis!",
-    "cancel": "Batal"
+    "cancel": "Batal",
+    "finish": "Selesai",
+    "saveProgress": "Simpan Progres",
+    "saving": "Menyimpan...",
+    "progressSaved": "Progres berhasil disimpan",
+    "progressSaveFailed": "Gagal menyimpan progres. Silakan coba lagi.",
+    "saveProgressLoginRequired": "Login diperlukan untuk menyimpan progres",
+    "incompleteWarningTitle": "Evaluasi Belum Lengkap",
+    "incompleteWarningDesc": "Anda memiliki {{count}} pertanyaan yang belum dijawab.",
+    "unansweredQuestions": "Pertanyaan Belum Dijawab",
+    "questionShort": "P{{number}}",
+    "proceedAnyway": "Lanjutkan Saja",
+    "goBackToQuiz": "Kembali ke Evaluasi"
   },
   "results": {
     "summaryTitle": "Ringkasan Kepatuhan Regulasi",

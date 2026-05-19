@@ -84,6 +84,24 @@ router.post("/responses", async (req: AuthRequest, res) => {
     const { attemptId, responses } = req.body;
     const userId = req.user!.id;
 
+    // Validate inputs
+    if (!attemptId || !Array.isArray(responses) || responses.length === 0) {
+      res.status(400).json({ error: "attemptId and non-empty responses array are required." });
+      return;
+    }
+
+    // Validate response items have required fields
+    const isValid = responses.every(
+      (r: any) =>
+        typeof r.questionId === "number" &&
+        typeof r.selectedAnswerIndex === "number" &&
+        typeof r.isCorrect === "boolean"
+    );
+    if (!isValid) {
+      res.status(400).json({ error: "Each response must have questionId, selectedAnswerIndex, and isCorrect." });
+      return;
+    }
+
     const [attempt] = await db
       .select()
       .from(quizAttempts)
@@ -94,6 +112,9 @@ router.post("/responses", async (req: AuthRequest, res) => {
       res.status(404).json({ error: "Attempt not found or access denied." });
       return;
     }
+
+    // Upsert: clear existing responses for this attempt, then insert fresh
+    await db.delete(quizResponses).where(eq(quizResponses.attemptId, attemptId));
 
     const inserted = await db
       .insert(quizResponses)
@@ -111,7 +132,7 @@ router.post("/responses", async (req: AuthRequest, res) => {
       userId,
       resourceId: attemptId.toString(),
       req,
-      details: `Saved ${responses.length} responses`,
+      details: `Upserted ${responses.length} responses`,
     });
 
     res.status(201).json({ responses: inserted });

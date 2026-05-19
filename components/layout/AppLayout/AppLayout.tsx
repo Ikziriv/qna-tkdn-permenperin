@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
 
 /** Props for the AppLayout component. */
 export interface AppLayoutProps {
@@ -11,6 +12,8 @@ export interface AppLayoutProps {
   fullWidth?: boolean;
   /** Whether to hide the top navigation header (e.g. on auth pages). */
   hideHeader?: boolean;
+  /** Optional callback when the Sign In button is clicked. */
+  onSignIn?: () => void;
 }
 
 /**
@@ -19,8 +22,9 @@ export interface AppLayoutProps {
  * Provides the top navigation bar with branding, language switcher, and responsive
  * main content area with a sticky footer.
  */
-export const AppLayout: React.FC<AppLayoutProps> = ({ children, fullWidth = false, hideHeader = false }) => {
+export const AppLayout: React.FC<AppLayoutProps> = ({ children, fullWidth = false, hideHeader = false, onSignIn }) => {
   const { t } = useTranslation();
+  const { authUser } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/50 via-slate-50 to-slate-100">
@@ -40,6 +44,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, fullWidth = fals
             <div className="hidden md:flex text-sm text-slate-400 font-medium uppercase tracking-wider">
               {t('app.tagline')}
             </div>
+            {!authUser && onSignIn && (
+              <button
+                type="button"
+                onClick={onSignIn}
+                className="hidden sm:inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-sm active:scale-[0.98] transition-all"
+              >
+                {t('auth.signIn')}
+              </button>
+            )}
             <LanguageSwitcher />
           </div>
         </div>
