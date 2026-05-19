@@ -476,14 +476,14 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {showResumeModal && (
+        {!isAdminPath && showResumeModal && (
           <ResumeModal
             onContinue={handleResume}
             onRestart={handleRestart}
           />
         )}
 
-        {currentState === AppState.AUTH && (
+        {!isAdminPath && currentState === AppState.AUTH && (
           <AuthForm
             onLogin={handleLogin}
             message={loginMessage}
@@ -499,11 +499,11 @@ const App: React.FC = () => {
           <AdminRouter />
         )}
 
-        {currentState === AppState.ONBOARDING && (
+        {!isAdminPath && currentState === AppState.ONBOARDING && (
           <OnboardingForm onStart={handleStart} />
         )}
 
-        {currentState === AppState.QUIZ && profile && (
+        {!isAdminPath && currentState === AppState.QUIZ && profile && (
           <QuizContainer
             profile={profile}
             questions={ASSESSMENT_QUESTIONS}
@@ -513,7 +513,7 @@ const App: React.FC = () => {
           />
         )}
 
-        {currentState === AppState.RESULTS && profile && (
+        {!isAdminPath && currentState === AppState.RESULTS && profile && (
           <Suspense fallback={<Spinner className="min-h-[400px]" />}>
             <ResultsContainer
               profile={profile}
@@ -536,7 +536,7 @@ const App: React.FC = () => {
           </Suspense>
         )}
 
-        {currentState === AppState.HISTORY && authUser && (
+        {!isAdminPath && currentState === AppState.HISTORY && authUser && (
           <Suspense fallback={<Spinner className="min-h-[400px]" />}>
             <QuizHistoryContainer
               onBack={() => {
